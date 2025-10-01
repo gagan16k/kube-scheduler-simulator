@@ -21,7 +21,13 @@
           multi-sort
           class="row-pointer"
           @click:row="onClick"
-        ></v-data-table>
+        >
+          <template v-for="header in headers" v-slot:[`item.${header.value}`]="{ item, header }">
+            <span v-if="header.filter && header.value !== 'action'" :key="header.value">{{ header.filter(getObjectValue(item, header.value)) }}</span>
+            <span v-else-if="header.value !== 'action'" :key="header.value">{{ getObjectValue(item, header.value) }}</span>
+            <slot v-else :name="`item.${header.value}`" v-bind:item="item"></slot>
+          </template>
+        </v-data-table>
       </v-card>
     </v-col>
   </v-row>
@@ -51,9 +57,25 @@ export default defineComponent({
   },
   setup() {
     const search = "";
+    
+    const getObjectValue = (obj: any, path: string) => {
+      if (!path) return undefined;
+      const pathArray = path.split('.');
+      let current = obj;
+      
+      for (const key of pathArray) {
+        if (current === undefined || current === null) {
+          return undefined;
+        }
+        current = current[key];
+      }
+      
+      return current;
+    };
 
     return {
       search,
+      getObjectValue
     };
   },
 });

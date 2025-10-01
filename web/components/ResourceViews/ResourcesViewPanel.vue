@@ -1,5 +1,6 @@
 <template>
   <div>
+    <NodeGroupPanel />
     <div v-if="IsAlphaTableViewEnabled()">
       <ResourcesDataTable />
     </div>
@@ -13,11 +14,13 @@
 import { defineComponent } from "@nuxtjs/composition-api";
 import ResourcesList from "./Lists/ResourcesList.vue";
 import ResourcesDataTable from "./DataTables/ResourcesDataTable.vue";
+import NodeGroupPanel from "../NodeGroupPanel.vue";
 
 export default defineComponent({
   components: {
     ResourcesList,
     ResourcesDataTable,
+    NodeGroupPanel,
   },
   setup() {
     const IsAlphaTableViewEnabled = () => {

@@ -9,6 +9,8 @@
     >
       New {{ rn }}
     </v-btn>
+    <NodeGroupDialog />
+    <RandomPodGenerator />
   </v-sheet>
 </template>
 
@@ -31,6 +33,8 @@ import PersistentVolumeClaimStoreKey from "./StoreKey/PVCStoreKey";
 import StorageClassStoreKey from "./StoreKey/StorageClassStoreKey";
 import PriorityClassStoreKey from "./StoreKey/PriorityClassStoreKey";
 import NamespaceStoreKey from "./StoreKey/NamespaceStoreKey";
+import NodeGroupDialog from "./NodeGroupDialog.vue";
+import RandomPodGenerator from "./RandomPodGenerator.vue";
 import {
   V1Node,
   V1PersistentVolumeClaim,
@@ -57,6 +61,10 @@ interface Store {
 }
 
 export default defineComponent({
+  components: {
+    NodeGroupDialog,
+    RandomPodGenerator,
+  },
   setup() {
     var store: Store | null = null;
 

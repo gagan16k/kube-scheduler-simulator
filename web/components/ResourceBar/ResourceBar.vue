@@ -25,6 +25,19 @@
     <template v-if="editmode">
       <v-spacer v-for="n in 3" :key="n" />
       <v-divider></v-divider>
+      
+      <!-- Add Random Pod Values Button (only for Pod resources) -->
+      <v-row v-if="selectedResourceKind() === 'Pod'" class="px-4 py-2">
+        <v-col>
+          <v-btn 
+            color="success"
+            @click="generateRandomPodValues"
+            small
+          >
+            Generate Random Values
+          </v-btn>
+        </v-col>
+      </v-row>
 
       <YamlEditor v-model="formData" />
     </template>
@@ -288,6 +301,128 @@ export default defineComponent({
       return selected.value?.resourceKind
     }
 
+    // Helper function to calculate memory limit (2x the request)
+    const calculateMemoryLimit = (memoryChoice: { value: number, unit: string }): string => {
+      // If the memory value is already high, just return the same value to avoid excessive limits
+      if (memoryChoice.unit === "Gi" && memoryChoice.value >= 32) {
+        return `${memoryChoice.value}${memoryChoice.unit}`;
+      }
+      
+      // Double the value
+      if (memoryChoice.unit === "Mi") {
+        if (memoryChoice.value * 2 >= 1024) {
+          // Convert to Gi if doubled value exceeds 1024Mi
+          return `${Math.floor((memoryChoice.value * 2) / 1024)}Gi`;
+        }
+        return `${memoryChoice.value * 2}Mi`;
+      } else {
+        // For Gi values
+        return `${memoryChoice.value * 2}${memoryChoice.unit}`;
+      }
+    }
+
+    // Function to generate random pod values in the YAML editor
+    const generateRandomPodValues = () => {
+      if (selectedResourceKind() === 'Pod') {
+        try {
+          // Parse the current YAML to get the pod object
+          const currentPod = yaml.load(formData.value) as V1Pod;
+          
+          // Container images to choose from
+          const containerImages = [
+            'nginx:latest', 
+            'redis:alpine', 
+            'busybox:latest', 
+            'python:3.9-slim',
+            'node:16-alpine',
+            'httpd:alpine'
+          ];
+          
+          // Generate integer CPU cores (1-10 cores)
+          const cpuCores = Math.floor(Math.random() * 10) + 1; // 1-10 CPU cores
+          
+          // Choose either power of 2 or multiple of 12 Gi for memory
+          let memoryChoice;
+          
+          if (Math.random() > 0.5) {
+            // Generate memory as power of 2 (512Mi to 64Gi)
+            // Powers of 2: 512Mi, 1Gi, 2Gi, 4Gi, 8Gi, 16Gi, 32Gi, 64Gi
+            const memoryPowers = [
+              { value: 512, unit: "Mi" },
+              { value: 1, unit: "Gi" },
+              { value: 2, unit: "Gi" },
+              { value: 4, unit: "Gi" },
+              { value: 8, unit: "Gi" },
+              { value: 16, unit: "Gi" },
+              { value: 32, unit: "Gi" },
+              { value: 64, unit: "Gi" }
+            ];
+            const memoryIndex = Math.floor(Math.random() * memoryPowers.length);
+            memoryChoice = memoryPowers[memoryIndex];
+          } else {
+            // Generate memory as multiple of 12 Gi (12Gi, 24Gi, 36Gi, 48Gi, 60Gi)
+            const memoryMultiples = [
+              { value: 12, unit: "Gi" },
+              { value: 24, unit: "Gi" },
+              { value: 36, unit: "Gi" },
+              { value: 48, unit: "Gi" },
+              { value: 60, unit: "Gi" }
+            ];
+            const memoryIndex = Math.floor(Math.random() * memoryMultiples.length);
+            memoryChoice = memoryMultiples[memoryIndex];
+          }
+          const memoryRequest = `${memoryChoice.value}${memoryChoice.unit}`;
+          
+          const randomImage = containerImages[Math.floor(Math.random() * containerImages.length)];
+          const randomId = Math.floor(Math.random() * 10000);
+          
+          // Preserve metadata.name if it exists, otherwise generate a name
+          const name = currentPod.metadata?.name || `random-pod-${randomId}`;
+          
+          // Create a new pod with random values
+          const randomPod: V1Pod = {
+            apiVersion: "v1",
+            kind: "Pod",
+            metadata: {
+              name: name,
+              namespace: currentPod.metadata?.namespace || "default",
+              labels: {
+                app: `random-app-${Math.floor(Math.random() * 10)}`,
+                'created-by': 'simulator'
+              }
+            },
+            spec: {
+              containers: [
+                {
+                  name: "container-1",
+                  image: randomImage,
+                  resources: {
+                    requests: {
+                      cpu: cpuCores.toString(),
+                      memory: memoryRequest
+                    },
+                    limits: {
+                      cpu: (cpuCores * 2).toString(),
+                      memory: calculateMemoryLimit(memoryChoice)
+                    }
+                  }
+                }
+              ]
+            }
+          };
+          
+          // Update the form data with the new random pod YAML
+          formData.value = yaml.dump(randomPod);
+          
+          // Show a success message
+          snackbarstore.setServerInfoMessage("Random pod values generated successfully!");
+        } catch (error) {
+          console.error("Error generating random pod values:", error);
+          snackbarstore.setServerErrorMessage("Failed to generate random pod values");
+        }
+      }
+    };
+
     return {
       drawer,
       editmode,
@@ -298,6 +433,7 @@ export default defineComponent({
       deleteOnClick,
       selectedResourceKind,
       selectedPod,
+      generateRandomPodValues,
     };
   },
 });

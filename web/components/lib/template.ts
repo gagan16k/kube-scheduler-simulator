@@ -14,7 +14,33 @@ export const podTemplate = (): V1Pod => {
     const temp = yaml.load(process.env.POD_TEMPLATE);
     return <V1Pod>temp;
   }
-  return {};
+  // Provide a basic default pod template
+  return {
+    kind: "Pod",
+    apiVersion: "v1",
+    metadata: {
+      name: "",
+      namespace: "default"
+    },
+    spec: {
+      containers: [
+        {
+          name: "container",
+          image: "nginx:latest",
+          resources: {
+            requests: {
+              cpu: "0.5",
+              memory: "64Mi"
+            },
+            limits: {
+              cpu: "1",
+              memory: "128Mi"
+            }
+          }
+        }
+      ]
+    }
+  };
 };
 
 export const nodeTemplate = (): V1Node => {
@@ -22,7 +48,15 @@ export const nodeTemplate = (): V1Node => {
     const temp = yaml.load(process.env.NODE_TEMPLATE);
     return <V1Node>temp;
   }
-  return {};
+  
+  // Basic node template with annotations for pricing
+  return {
+    metadata: {
+      annotations: {
+        "simulator.kubernetes.io/price-per-hour": "0.00"
+      }
+    }
+  };
 };
 
 export const pvTemplate = (): V1PersistentVolume => {

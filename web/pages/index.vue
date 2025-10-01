@@ -2,7 +2,8 @@
   <APIProvider>
     <PodStoreProvider>
       <NodeStoreProvider>
-        <PVStoreProvider>
+        <NodeGroupStoreProvider>
+          <PVStoreProvider>
           <PVCStoreProvider>
             <SchedulerConfigurationStoreProvider>
               <StorageClassStoreProvider>
@@ -23,6 +24,7 @@
             </SchedulerConfigurationStoreProvider>
           </PVCStoreProvider>
         </PVStoreProvider>
+        </NodeGroupStoreProvider>
       </NodeStoreProvider>
     </PodStoreProvider>
   </APIProvider>
@@ -33,6 +35,7 @@ import { defineComponent } from "@nuxtjs/composition-api";
 import APIProvider from "~/api/APIProvider.vue";
 import TopBar from "~/components/TopBar/TopBar.vue";
 import NodeStoreProvider from "~/components/StoreProvider/NodeStoreProvider.vue";
+import NodeGroupStoreProvider from "~/components/StoreProvider/NodeGroupStoreProvider.vue";
 import PVStoreProvider from "~/components/StoreProvider/PVStoreProvider.vue";
 import PVCStoreProvider from "~/components/StoreProvider/PVCStoreProvider.vue";
 import SchedulerConfigurationStoreProvider from "~/components/StoreProvider/SchedulerConfigurationStoreProvider.vue";
@@ -53,6 +56,7 @@ export default defineComponent({
     Snackbar,
     SnackbarStoreProvider,
     NodeStoreProvider,
+    NodeGroupStoreProvider,
     ResourceViewPanel,
     PodStoreProvider,
     ResourceAddButton,
