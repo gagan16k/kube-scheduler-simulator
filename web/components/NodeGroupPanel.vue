@@ -157,15 +157,15 @@ export default defineComponent({
               'simulator.kubernetes.io/price-per-hour': group.pricePerHour || '0.50'
             }
           },
-          spec: group.addTaints ? {
-            taints: [
+          spec: {
+            taints: group.addTaints ? [
               {
                 key: group.taintKey,
                 value: group.taintValue,
                 effect: group.taintEffect
               } as V1Taint
-            ]
-          } : {},
+            ] : undefined
+          },
           status: {
             capacity: {
               cpu: group.cpuValue,
@@ -186,11 +186,6 @@ export default defineComponent({
             ]
           }
         };
-        
-        // Clean up empty objects/arrays that might cause validation errors
-        if (node.spec && Object.keys(node.spec).length === 0) {
-          delete node.spec;
-        }
         
         console.log('Created node object:', JSON.stringify(node));
         const result = await nodeStore.apply(node);
