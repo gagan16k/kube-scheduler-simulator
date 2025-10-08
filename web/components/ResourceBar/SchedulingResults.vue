@@ -1,6 +1,6 @@
 <template>
   <v-expansion-panels accordion multiple>
-    <v-expansion-panel v-if="filterTableData().length > 1">
+    <v-expansion-panel v-if="filterTableData().length > 0">
       <v-expansion-panel-header> Filter </v-expansion-panel-header>
       <v-expansion-panel-content>
         <v-data-table
@@ -12,7 +12,7 @@
         </v-data-table>
       </v-expansion-panel-content>
     </v-expansion-panel>
-    <v-expansion-panel v-if="scoreTableData().length > 1">
+    <v-expansion-panel v-if="scoreTableData().length > 0">
       <v-expansion-panel-header> Score </v-expansion-panel-header>
       <v-expansion-panel-content>
         <v-data-table
@@ -24,7 +24,7 @@
         </v-data-table>
       </v-expansion-panel-content>
     </v-expansion-panel>
-    <v-expansion-panel v-if="finalscoreTableData().length > 1">
+    <v-expansion-panel v-if="finalscoreTableData().length > 0">
       <v-expansion-panel-header>
         Final Score (Normalized + Applied plugin weight)
       </v-expansion-panel-header>
